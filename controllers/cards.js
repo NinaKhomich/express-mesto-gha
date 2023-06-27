@@ -38,7 +38,17 @@ const deleteCard = (req, res) => {
       }
       res.send({ data: card });
     })
-    .catch(() => res.status(ERROR_CODE.SERVER_ERROR).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res
+          .status(ERROR_CODE.BAD_REQUEST)
+          .send({
+            message: 'Переданы некорректные данные для удаления карточки',
+          });
+      } else {
+        res.status(ERROR_CODE.SERVER_ERROR).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 const putLike = (req, res) => {

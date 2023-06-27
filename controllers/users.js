@@ -20,8 +20,16 @@ const getUser = (req, res) => {
       }
       res.send(user);
     })
-    .catch(() => {
-      res.status(ERROR_CODE.SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res
+          .status(ERROR_CODE.BAD_REQUEST)
+          .send({
+            message: 'Переданы некорректные при поиске пользователя',
+          });
+      } else {
+        res.status(ERROR_CODE.SERVER_ERROR).send({ message: 'Произошла ошибка' });
+      }
     });
 };
 
