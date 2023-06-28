@@ -1,5 +1,9 @@
+const mongoose = require('mongoose');
+
+const { ValidationError, CastError } = mongoose.Error;
+const { ERROR_CODE, SUCCESS_CODE } = require('../utils/constants');
+
 const User = require('../models/user');
-const ERROR_CODE = require('../utils/constants');
 
 const getUsers = (req, res) => {
   User.find({})
@@ -17,11 +21,12 @@ const getUser = (req, res) => {
         res
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь не найден' });
+        return;
       }
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res
           .status(ERROR_CODE.BAD_REQUEST)
           .send({
@@ -38,10 +43,10 @@ const createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => {
-      res.status(201).send(user);
+      res.status(SUCCESS_CODE.CREATED).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof ValidationError) {
         res
           .status(ERROR_CODE.BAD_REQUEST)
           .send({
@@ -55,11 +60,10 @@ const createUser = (req, res) => {
     });
 };
 
-const updateUser = (req, res) => {
-  const { name, about } = req.body;
+const userToUpdate = (body, req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
-    { name, about },
+    body,
     { new: true, runValidators: true },
   )
     .then((user) => {
@@ -67,15 +71,16 @@ const updateUser = (req, res) => {
         res
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Пользователь не найден' });
+        return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof ValidationError) {
         res
           .status(ERROR_CODE.BAD_REQUEST)
           .send({
-            message: 'Переданы некорректные данные при обновлении пользователя',
+            message: 'Переданы некорректные данные при обновлении данных пользователя',
           });
       } else {
         res
@@ -85,34 +90,14 @@ const updateUser = (req, res) => {
     });
 };
 
+const updateUser = (req, res) => {
+  const { name, about } = req.body;
+  userToUpdate({ name, about }, req, res);
+};
+
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    { new: true, runValidators: true },
-  )
-    .then((user) => {
-      if (!user) {
-        res
-          .status(ERROR_CODE.NOT_FOUND)
-          .send({ message: 'Пользователь не найден' });
-      }
-      res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res
-          .status(ERROR_CODE.BAD_REQUEST)
-          .send({
-            message: 'Переданы некорректные данные при обновлении аватара',
-          });
-      } else {
-        res
-          .status(ERROR_CODE.SERVER_ERROR)
-          .send({ message: 'Произошла ошибка' });
-      }
-    });
+  userToUpdate({ avatar }, req, res);
 };
 
 module.exports = {

@@ -1,5 +1,9 @@
+const mongoose = require('mongoose');
+
+const { ValidationError, CastError } = mongoose.Error;
+const { ERROR_CODE, SUCCESS_CODE } = require('../utils/constants');
+
 const Card = require('../models/card');
-const ERROR_CODE = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find({})
@@ -12,9 +16,9 @@ const getCards = (req, res) => {
 const createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(SUCCESS_CODE.CREATED).send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof ValidationError) {
         res
           .status(ERROR_CODE.BAD_REQUEST)
           .send({
@@ -35,11 +39,12 @@ const deleteCard = (req, res) => {
         res
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Карточка не найдена' });
+        return;
       }
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res
           .status(ERROR_CODE.BAD_REQUEST)
           .send({
@@ -62,11 +67,12 @@ const putLike = (req, res) => {
         res
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Карточка не найдена' });
+        return;
       }
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res
           .status(ERROR_CODE.BAD_REQUEST)
           .send({
@@ -91,11 +97,12 @@ const deleteLike = (req, res) => {
         res
           .status(ERROR_CODE.NOT_FOUND)
           .send({ message: 'Карточка не найдена' });
+        return;
       }
       res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res
           .status(ERROR_CODE.BAD_REQUEST)
           .send({ message: 'Переданы некорректные данные для снятия лайка' });
