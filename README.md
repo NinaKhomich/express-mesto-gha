@@ -1,7 +1,17 @@
 [![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
+# Проект Mesto backend
+В данном проекте разработано API для реализации следующих возможностей:
+- регистрация и авторизация пользователя,
+- обновление данных пользователя,
+- работа с карточками (создать, удалить, поставить лайк),
+Все роуты защищены авторизацией (кроме страницы регистрации и логина). Все данные приходящие на сервер проходят валидацию. Реализована централизованная обработка ошибок.
 
-[Ссылка на репозиторий](https://github.com/NinaKhomich/express-mesto-gha)
+## Стек
+- JavaScripts
+- Node.js
+- Express.js
+- MongoDB
+- Postman
 
 ## Директории
 
@@ -15,3 +25,5 @@
 
 `npm run start` — запускает сервер   
 `npm run dev` — запускает сервер с hot-reload
+
+[Ссылка на репозиторий](https://github.com/NinaKhomich/express-mesto-gha)
